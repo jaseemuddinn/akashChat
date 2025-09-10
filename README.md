@@ -180,8 +180,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📞 Support
 
-- [AkashChat Documentation](https://docs.akash.chat)
-- [AkashChat Community](https://discord.gg/akashchat)
+- [AkashChat Documentation](https://akash.network/docs/guides/machine-learning/akash-chat-api/)
+- [AkashChat Community](https://discord.gg/akash)
 - [Next.js Documentation](https://nextjs.org/docs)
 
 ---
