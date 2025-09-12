@@ -3,6 +3,7 @@
 import { Plus, X, LogOut, MessageSquare, Settings } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
+import SettingsModal from './SettingsModal';
 
 export default function Sidebar({
     isOpen,
@@ -15,10 +16,33 @@ export default function Sidebar({
     onNewSession,
     user
 }) {
-    const [showSettings, setShowSettings] = useState(false);
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
 
     const handleConfigChange = (key, value) => {
         setConfig(prev => ({ ...prev, [key]: value }));
+    };
+
+    const getModelDescription = (model) => {
+        if (model.includes('8B')) return 'Fastest responses, lowest cost';
+        if (model.includes('17B')) return 'Good balance of speed and quality';
+        if (model.includes('32B')) return 'High quality reasoning';
+        if (model.includes('70B')) return 'Very high quality, slower';
+        if (model.includes('120B')) return 'Excellent quality, high cost';
+        if (model.includes('235B')) return 'Massive model, best quality';
+        if (model.includes('DeepSeek-V3')) return 'Latest DeepSeek model';
+        if (model.includes('DeepSeek-R1')) return 'Reasoning-focused model';
+        return 'High-performance model';
+    };
+
+    const getDisplayName = (model) => {
+        if (model.includes('8B')) return 'Llama 3.1 8B Instruct';
+        if (model.includes('70B') && model.includes('3-3')) return 'Llama 3.3 70B Instruct';
+        if (model.includes('Maverick')) return 'Llama 4 Maverick 17B';
+        if (model.includes('DeepSeek-V3')) return 'DeepSeek V3.1';
+        if (model.includes('DeepSeek-R1')) return 'DeepSeek R1 Distill';
+        if (model.includes('gpt-oss')) return 'GPT OSS 120B';
+        if (model.includes('Qwen3')) return 'Qwen3 235B';
+        return model;
     };
     return (
         <>
@@ -66,76 +90,14 @@ export default function Sidebar({
                     </button>
 
                     <button
-                        onClick={() => setShowSettings(!showSettings)}
-                        className="w-full flex items-center space-x-3 px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-white font-medium"
+                        onClick={() => setShowSettingsModal(true)}
+                        className="w-full flex items-center space-x-3 px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-white font-medium group"
                     >
-                        <Settings className="w-5 h-5" />
-                        <span>Settings</span>
+                        <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform" />
+                        <span>AI Settings</span>
+                        <div className="ml-auto w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                     </button>
                 </div>
-
-                {/* Settings Panel */}
-                {showSettings && (
-                    <div className="px-4 pb-4">
-                        <div className="bg-gray-900 rounded-lg p-3 space-y-3">
-                            <h4 className="text-sm font-medium text-white mb-3">Chat Configuration</h4>
-
-                            {/* Model Selection */}
-                            <div>
-                                <label className="block text-xs font-medium text-gray-300 mb-1">
-                                    AI Model
-                                </label>
-                                <select
-                                    value={config.model}
-                                    onChange={(e) => handleConfigChange('model', e.target.value)}
-                                    className="w-full px-2 py-1 text-sm border border-gray-600 rounded focus:ring-1 focus:ring-red-500 focus:border-transparent bg-gray-800 text-white"
-                                >
-                                    <option value="Meta-Llama-3-1-8B-Instruct-FP8">Llama 3.1 8B (Fast & Efficient)</option>
-                                    <option value="Meta-Llama-3-1-405B-Instruct-FP8">Llama 3.1 405B (Best Quality)</option>
-                                </select>
-                                <div className="text-xs text-gray-400 mt-1">
-                                    {config.model.includes('8B') ? 'Faster responses, lower cost' : 'Highest quality, slower responses'}
-                                </div>
-                            </div>
-
-                            {/* Temperature Control */}
-                            <div>
-                                <label className="block text-xs font-medium text-gray-300 mb-1">
-                                    Temperature: {config.temperature}
-                                </label>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="2"
-                                    step="0.1"
-                                    value={config.temperature}
-                                    onChange={(e) => handleConfigChange('temperature', parseFloat(e.target.value))}
-                                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                                />
-                                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                    <span>Focused</span>
-                                    <span>Creative</span>
-                                </div>
-                            </div>
-
-                            {/* Max Tokens */}
-                            <div>
-                                <label className="block text-xs font-medium text-gray-300 mb-1">
-                                    Max Tokens: {config.maxTokens}
-                                </label>
-                                <input
-                                    type="range"
-                                    min="100"
-                                    max="4000"
-                                    step="100"
-                                    value={config.maxTokens}
-                                    onChange={(e) => handleConfigChange('maxTokens', parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                )}
 
                 {/* Chat Sessions */}
                 <div className="flex-1 overflow-y-auto px-4">
@@ -170,10 +132,10 @@ export default function Sidebar({
                             Current Model
                         </div>
                         <div className="text-white font-medium">
-                            {config.model.includes('8B') ? 'Llama 3.1 8B Instruct' : 'Llama 3.1 405B Instruct'}
+                            {getDisplayName(config.model)}
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
-                            {config.model.includes('8B') ? 'Fast & Efficient' : 'Best Quality'}
+                            {getModelDescription(config.model)}
                         </div>
                     </div>
 
@@ -215,6 +177,14 @@ export default function Sidebar({
                     </div>
                 </div>
             </div>
+
+            {/* Settings Modal */}
+            <SettingsModal
+                isOpen={showSettingsModal}
+                onClose={() => setShowSettingsModal(false)}
+                config={config}
+                setConfig={setConfig}
+            />
         </>
     );
 }
