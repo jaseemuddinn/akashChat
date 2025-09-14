@@ -26,7 +26,7 @@ export async function POST(request) {
         }
 
         // Check if API key is configured
-        if (!AKASH_CHAT_API_KEY || AKASH_CHAT_API_KEY === 'your_api_key_here') {
+        if (!AKASH_CHAT_API_KEY) {
             return NextResponse.json(
                 {
                     error: 'AkashChat API key not configured. Please add AKASH_CHAT_API_KEY to your .env.local file.'
