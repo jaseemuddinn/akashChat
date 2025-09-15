@@ -96,8 +96,8 @@ export async function POST(request) {
         }
 
         // Add conversation history (last 10 messages to prevent token overflow)
-        const recentHistory = (conversationHistory || []).slice(-10);
-        messages.push(...recentHistory);
+            const recentHistory = (conversationHistory || []).slice(-10);
+            messages.push(...recentHistory);
 
         // Add current user message
         messages.push({
